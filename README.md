@@ -28,7 +28,7 @@ Enable the universe repository to install necessary dependencies.
 
 ```bash
 sudo apt install software-properties-common
-sudo add-apt-repository universe
+sudo add-apt-repository universe # Press Enter
 ```
 
 ## Install ROS 2 Humble
