@@ -46,7 +46,7 @@ Add the official ROS 2 package repository to your system.
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
 ```
 
-Update package lists and upgrade installed packages.
+Update package lists and upgrade installed packages. This may take a few minutes.
 
 ```bash
 sudo apt update
@@ -62,7 +62,7 @@ Automatically source ROS 2 setup when opening a terminal.
 gedit ~/.bashrc  # Open .bashrc file
 ```
 
-Add the following line at the end:
+Add the following line at the end , save and exit:
 
 ```bash
 source /opt/ros/humble/setup.bash
