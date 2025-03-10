@@ -143,3 +143,113 @@ ros2 run turtlesim turtlesim_node
 
 If `turtlesim` launches successfully, your ROS 2 installation is complete!
 
+## SOURCE ROS2 ENVİRONMENT AND CHECK
+Check that variables like ROS_DISTRO and ROS_VERSION are set.
+```bash
+printenv | grep -i ROS
+```
+Opne .bashrc file and add this two export line at the and.
+```bash
+gedit ~/.bashrc 
+export ROS_DOMAIN_ID=22
+export ROS_LOCALHOST_ONLY=1 
+source ~/.bashrc
+```
+## INSTALL BUILD DEPENDINCIES
+
+```bash
+sudo apt install default-jre #environment for executing Java applications.
+```
+Micro XRCE-DDS-Gen is required for DDS communication in ROS 2.
+```bash
+cd
+git clone --recurse-submodules https://github.com/ardupilot/Micro-XRCE-DDS-Gen.git
+cd Micro-XRCE-DDS-Gen
+./gradlew assemble
+```
+Opne .bashrc file and add this export line at the and.
+```bash
+gedit ~/.bashrc 
+export PATH=$PATH:~/Micro-XRCE-DDS-Gen/scripts 
+source ~/.bashrc
+```
+After this command you should see a version number but if you see `microxrceddsgen version: null`, please continue with the installation. 
+
+```bash
+ microxrceddsgen -version
+```
+The commands you've provided are for setting up a system to use Git and the GCC ARM toolchain. This may take a few minutes.
+```bash
+cd
+sudo apt-get update 
+sudo apt-get install git  
+sudo apt-get install gitk git-gui 
+sudo apt-get install gcc-arm-none-eabi
+```
+## CLONE ARDUPILOT
+This may take a few minutes.
+```bash
+git clone https://github.com/ArduPilot/ardupilot.git
+cd ardupilot
+```
+```bash
+git status #check your current status of the git repository
+./waf distclean 
+./waf distclean 
+./waf configure --board MatekF405-Wing 
+./waf plane
+```
+If you run into an error (probably), please try the following steps:
+```bash
+git submodule init 
+git submodule update 
+./waf configure --board MatekF405-Wing 
+./waf clean 
+./waf distclean 
+./waf configure --board MatekF405-Wing
+```
+## ROS 2
+```bash
+cd ~/ros2_ws/src
+wget https://raw.githubusercontent.com/ArduPilot/ardupilot/master/Tools/ros2/ros2.repos
+```
+When you run the following code, you will see a dot at the bottom. It may take some time.
+```bash
+sudo apt update
+sudo apt install python3-vcstool
+vcs import --recursive < ros2.repos 
+```
+Rosdep is a command-line tool used in the Robot Operating System (ROS) to manage package dependencies.
+```bash
+cd ~/ros2_ws
+sudo apt update
+rosdep update
+source /opt/ros/humble/setup.bash
+rosdep install --from-paths src --ignore-src -r -y
+```
+### TRYING ROS 2
+This commands to build and test the ardupilot_dds_tests package in your ROS 2 workspace. This may take a few minutes.
+```bash
+cd ~/ros2_ws
+colcon build --packages-up-to ardupilot_dds_tests --cmake-args -DBUILD_TESTING=ON
+```
+If you'd like to test your installation, run (note: in the results you can see "failures"):
+```bash
+MAKEFLAGS="-j 1"  colcon test --packages-select ardupilot_dds_tests
+colcon test-result --all --verbose
+```
+
+```bash
+```
+```bash
+```
+```bash
+```
+```bash
+```
+```bash
+```
+```bash
+```
+
+
