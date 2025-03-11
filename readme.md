@@ -1,208 +1,272 @@
-# ROS 2 Humble Installation Guide
+# ROS 2 Gazebo ArduPilot SITL Complete Setup Guide
 
-## 1. Set Locale
+## Video Tutorial
+
+A step-by-step video tutorial is available at: [YouTube Video](https://www.youtube.com/watch?v=2BhyKyzKAbM\&t=1759s)
+
+## Install Git and Curl
+
+Ensure Git is installed for cloning repositories and Curl for downloading necessary files.
+
 ```bash
-locale # Check for UTF-8 support
+sudo apt update
+sudo apt install git curl -y
+```
 
+## Check and Set UTF-8 Locale
+
+Ensure your system uses UTF-8 encoding to avoid localization issues.
+
+```bash
+locale  # Check current locale
 sudo apt update && sudo apt install locales
 sudo locale-gen en_US en_US.UTF-8
 sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 export LANG=en_US.UTF-8
-
-locale # Verify settings
+locale  # Verify locale settings
 ```
 
-## 2. Add Required Repositories
+## Enable Universe Repository
+
+Enable the Universe repository to install necessary dependencies.
+
 ```bash
 sudo apt install software-properties-common
-sudo add-apt-repository universe
+sudo add-apt-repository universe  # Press Enter
+```
 
-sudo apt update && sudo apt install curl -y
+## Install ROS 2 Humble
+
+### Add ROS 2 Repository and Key
+
+Download and add the ROS 2 repository key to ensure secure package installations.
+
+```bash
 sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+```
 
+Add the official ROS 2 package repository to your system.
+
+```bash
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
 ```
 
-## 3. Install ROS 2 Humble
+Update package lists and upgrade installed packages.
+
 ```bash
 sudo apt update
 sudo apt upgrade
+```
 
+Install the full ROS 2 Humble desktop version, including core libraries, visualization, and simulation tools. This may take a few minutes.
+
+```bash
 sudo apt install ros-humble-desktop
 ```
 
-## 4. Setup Environment
+### Setup Environment
+
+Automatically source ROS 2 setup when opening a terminal. Add the following line at the end, save, and exit:
+
 ```bash
-gedit ~/.bashrc
-source /opt/ros/humble/setup.bash # Add this line to the file
-source ~/.bashrc
+echo 'source /opt/ros/humble/setup.bash' >> ~/.bashrc
+source ~/.bashrc  # Apply the changes
 ```
 
-## 5. Create a Workspace and Clone Example Repository
+## Create a ROS 2 Workspace
+
 ```bash
 mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws/src
+```
 
-# Install Git if not available
-sudo apt install git
+Clone example ROS 2 tutorials:
 
+```bash
 git clone https://github.com/ros/ros_tutorials.git -b humble
 ```
 
-## 6. Install Dependencies and Build
+## Install Dependencies
+
+### Install Missing Dependencies
+
+Use `rosdep` to install missing dependencies.
+
 ```bash
 cd ~/ros2_ws
 rosdep install -i --from-path src --rosdistro humble -y
+```
 
-# If 'rosdep' command is not found:
+If `rosdep` is not found, install it first:
+
+```bash
 sudo apt install python3-rosdep2
 rosdep update
 rosdep install -i --from-path src --rosdistro humble -y
+```
 
+### Install Colcon
+
+Install Colcon to build ROS 2 packages.
+
+```bash
 sudo apt update
 sudo apt install python3-colcon-common-extensions
+```
 
+### Build and Source Workspace
+
+Compile the workspace using Colcon.
+
+```bash
 colcon build
+```
+
+Set up the workspace environment before running ROS 2 nodes.
+
+```bash
 source install/local_setup.bash
 ```
 
-## 7. Test Installation
+### Test Installation
+
+Run the Turtlesim node to verify the installation.
+
 ```bash
-ros2 run turtlesim turtlesim_node # If this works, the installation is successful
+ros2 run turtlesim turtlesim_node
 ```
 
-## 8. Verify ROS 2 Environment Variables
-```bash
-printenv | grep -i ROS # Ensure ROS_DISTRO and ROS_VERSION are set
+If Turtlesim launches successfully, your ROS 2 installation is complete!
 
-gedit ~/.bashrc
-export ROS_DOMAIN_ID=22
-export ROS_LOCALHOST_ONLY=1
-source ~/.bashrc
+## Source ROS 2 Environment and Check
+
+Verify that variables like `ROS_DISTRO` and `ROS_VERSION` are set.
+
+```bash
+printenv | grep -i ROS
 ```
 
-## 9. Install Build Dependencies
+Edit the `.bashrc` file and add these lines at the end:
+
 ```bash
-sudo apt install default-jre
+echo 'export ROS_DOMAIN_ID=22' >> ~/.bashrc
+echo 'export ROS_LOCALHOST_ONLY=1' >> ~/.bashrc
+source ~/.bashrc  # Apply the changes
+```
 
-cd ~ # Exit ros2_ws
+## Install Build Dependencies
 
+```bash
+sudo apt install default-jre  # Java runtime environment for executing applications
+```
+
+Micro XRCE-DDS-Gen is required for DDS communication in ROS 2.
+
+```bash
+cd
 git clone --recurse-submodules https://github.com/ardupilot/Micro-XRCE-DDS-Gen.git
 cd Micro-XRCE-DDS-Gen
 ./gradlew assemble
-
-gedit ~/.bashrc
-export PATH=$PATH:~/Micro-XRCE-DDS-Gen/scripts
-source ~/.bashrc
-
-microxrceddsgen -version # Check installation
 ```
 
-## 10. Install ArduPilot and Compile Firmware
-```bash
-cd ~
-sudo apt update
-sudo apt install git gitk git-gui gcc-arm-none-eabi
+Edit the `.bashrc` file and add:
 
+```bash
+echo 'export PATH=$PATH:~/Micro-XRCE-DDS-Gen/scripts' >> ~/.bashrc
+source ~/.bashrc  # Apply the changes
+```
+
+Check if Micro XRCE-DDS-Gen is installed correctly:
+
+```bash
+microxrceddsgen -version
+```
+
+## Clone ArduPilot
+
+This may take a few minutes.
+
+```bash
 git clone https://github.com/ArduPilot/ardupilot.git
 cd ardupilot
+```
 
-git status
+Check repository status and clean the build environment:
+
+```bash
+git status  # Check current Git repository status
 ./waf distclean
-./waf configure --board MatekF405-Wing
+./waf configure --board MatekF405-Wing 
 ./waf plane
 ```
 
-## 11. Install ROS 2 for ArduPilot
+If errors occur, try:
+
 ```bash
-cd ~/ros2_ws/src
-wget https://raw.githubusercontent.com/ArduPilot/ardupilot/master/Tools/ros2/ros2.repos
-
-sudo apt update
-sudo apt install python3-vcstool
-vcs import --recursive < ros2.repos
-
-cd ~/ros2_ws
-rosdep update
-source /opt/ros/humble/setup.bash
-rosdep install --from-paths src --ignore-src -r -y
-
-colcon build --packages-up-to ardupilot_dds_tests --cmake-args -DBUILD_TESTING=ON
+git submodule init 
+git submodule update 
+./waf configure --board MatekF405-Wing 
+./waf clean 
+./waf distclean 
+./waf configure --board MatekF405-Wing
 ```
 
-## 12. Test ArduPilot DDS
+## Install Gazebo Garden
+
 ```bash
-cd ~/ros2_ws
-source ./install/setup.bash
-colcon test --packages-select ardupilot_dds_tests
-colcon test-result --all --verbose
+sudo apt-get update
+sudo apt-get install lsb-release curl gnupg
+sudo wget https://packages.osrfoundation.org/gazebo.gpg -O /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
 ```
 
-## 13. Install and Use SITL
+Add the repository and install Gazebo Garden.
+
 ```bash
-cd ~/ardupilot
-git pull
-Tools/environment_install/install-prereqs-ubuntu.sh -y
-
-./waf clean
-./waf configure --board sitl
-./waf copter -v
-
-cd ~/ardupilot/Tools/autotest
-
-sudo pip3 install MAVProxy
-mavproxy.py --version
-
-gedit ~/.bashrc
-export PATH=$PATH:/path/to/mavproxy
-source ~/.bashrc
-
-./sim_vehicle.py -v ArduCopter --console --map
-```
-
-## 14. Run SITL with ROS 2
-```bash
-cd ~/ros2_ws/
-colcon build --packages-up-to ardupilot_sitl
-source install/setup.bash
-
-ros2 launch ardupilot_sitl sitl_dds_udp.launch.py transport:=udp4 refs:=$(ros2 pkg prefix ardupilot_sitl)/share/ardupilot_sitl/config/dds_xrce_profile.xml synthetic_clock:=True wipe:=False model:=quad speedup:=1 slave:=0 instance:=0 defaults:=$(ros2 pkg prefix ardupilot_sitl)/share/ardupilot_sitl/config/default_params/copter.parm,$(ros2 pkg prefix ardupilot_sitl)/share/ardupilot_sitl/config/default_params/dds_udp.parm sim_address:=127.0.0.1 master:=tcp:127.0.0.1:5760 sitl:=127.0.0.1:5501
-```
-
-## 15. Install Gazebo Garden
-```bash
-sudo apt update
-sudo apt install lsb-release curl gnupg
-
-sudo wget https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
-
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
-
-sudo apt update
-sudo apt install gz-garden
+sudo apt-get update
+sudo apt-get install gz-garden
 ```
 
-## 16. Use SITL in Gazebo Garden
+## SITL in Gazebo Garden
+
+This may take a few minutes.
+
 ```bash
 cd ~/ros2_ws/src
 wget https://raw.githubusercontent.com/ArduPilot/ardupilot_gz/main/ros2_gz.repos
 vcs import --recursive < ros2_gz.repos
-
-gedit ~/.bashrc
-export GZ_VERSION=garden
-source ~/.bashrc
-
-cd ~/ros2_ws
-rosdep update
-rosdep install --rosdistro $ROS_DISTRO --from-paths src -i -r -y
-
-colcon build --packages-up-to ardupilot_gz_bringup --cmake-args -DBUILD_TESTING=ON
-source install/setup.bash
 ```
 
-## 17. Verify ROS 2 with SITL and Gazebo
+Edit the `.bashrc` file and add:
+
 ```bash
-ros2 topic list
-ros2 topic echo /imu
+echo 'export GZ_VERSION=garden' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Build the package:
+
+```bash
+cd ~/ros2_ws/
+sudo apt update
+rosdep update
+rosdep install --rosdistro $ROS_DISTRO --from-paths src -i -r -y
+colcon build --packages-up-to ardupilot_gz_bringup --cmake-args -DBUILD_TESTING=ON
+```
+
+## Launch Gazebo Simulations
+
+```bash
+ros2 launch ardupilot_gz_bringup iris_runway.launch.py
+ros2 launch ardupilot_gz_bringup iris_maze.launch.py  # A maze example
+```
+
+### Important Notes
+
+Use `CTRL+C` to close Gazebo properly. If Gazebo opens with a blank screen:
+
+```bash
+ps aux | grep -E "gz|ros|ardupilot|mavproxy"  # Check running processes
+pkill -9 -f "gz|ros|ardupilot|mavproxy"
 ```
 
