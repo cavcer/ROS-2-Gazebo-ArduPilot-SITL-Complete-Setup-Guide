@@ -233,13 +233,57 @@ This commands to build and test the ardupilot_dds_tests package in your ROS 2 wo
 cd ~/ros2_ws
 colcon build --packages-up-to ardupilot_dds_tests --cmake-args -DBUILD_TESTING=ON
 ```
-If you'd like to test your installation, run (note: in the results you can see "failures"):
+If you'd like to test your installation, run (note: This might take a while. If it takes too long, don’t wait—just continue with the installation and move on to the next steps:
 ```bash
+source ./install/setup.bash
 MAKEFLAGS="-j 1"  colcon test --packages-select ardupilot_dds_tests
 colcon test-result --all --verbose
 ```
+## INSTALL SITL
+This may take few minutes.
+```bash
+cd ~/ardupilot
+git pull
+Tools/environment_install/install-prereqs-ubuntu.sh -y
+./waf clean
+./waf configure --board sitl
+./waf copter -v
+```
+```bash
+cd ~/ardupilot/Tools/autotest
+sudo pip3 install MAVProxy
+mavproxy.py --version
+```
+Edit this export line at the end.
+```bash
+gedit ~/.bashrc
+export PATH=$PATH:/path/to/mavproxy
+source ~/.bashrc
+```
+This commands 
+```bash
+./sim_vehicle.py -v ArduCopter -w
+
+./sim_vehicle.py -v ArduCopter --console --map
+
+./sim_vehicle.py -v ArduCopter -L KSFO --console --map
+
+```
+## USE SITL
+These are some example to use SITL. You can find more at the document that below the video tutorial.
+```bash
+./sim_vehicle.py -v ArduPlane -f quadplane --console --map --osd 
+./sim_vehicle.py -v ArduCopter -f quadcopter --console --map --osd #This runs an ArduPlane simulation in quadplane mode, meaning the aircraft can take off and land vertically like a drone.
+```
+## ROS2 WITH SITL
 
 ```bash
+cd ~/ros2_ws/
+colcon build --packages-up-to ardupilot_sitl
+source install/setup.bash
+```
+```bash
+ros2 launch ardupilot_sitl sitl_dds_udp.launch.py transport:=udp4 refs:=$(ros2 pkg prefix ardupilot_sitl)/share/ardupilot_sitl/config/dds_xrce_profile.xml synthetic_clock:=True wipe:=False model:=quad speedup:=1 slave:=0 instance:=0 defaults:=$(ros2 pkg prefix ardupilot_sitl)/share/ardupilot_sitl/config/default_params/copter.parm,$(ros2 pkg prefix ardupilot_sitl)/share/ardupilot_sitl/config/default_params/dds_udp.parm sim_address:=127.0.0.1 master:=tcp:127.0.0.1:5760 sitl:=127.0.0.1:5501
 ```
 ```bash
 ```
@@ -251,5 +295,8 @@ colcon test-result --all --verbose
 ```
 ```bash
 ```
+```bash
+```
+
 
 
