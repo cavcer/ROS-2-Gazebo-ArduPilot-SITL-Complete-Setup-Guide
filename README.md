@@ -61,23 +61,12 @@ sudo apt install ros-humble-desktop
 
 ## Setup Environment
 
-### Add ROS 2 to .bashrc
-Automatically source ROS 2 setup when opening a terminal.
+Automatically source ROS 2 setup when opening a terminal.Add the following second line at the end , save and exit:
 
 ```bash
 gedit ~/.bashrc  # Open .bashrc file
-```
-
-Add the following line at the end , save and exit:
-
-```bash
 source /opt/ros/humble/setup.bash
-```
-
-Apply changes:
-
-```bash
-source ~/.bashrc
+source ~/.bashrc # apply the changes
 ```
 
 ## Create a ROS 2 Workspace
@@ -153,7 +142,7 @@ Opne .bashrc file and add this two export line at the and.
 gedit ~/.bashrc 
 export ROS_DOMAIN_ID=22
 export ROS_LOCALHOST_ONLY=1 
-source ~/.bashrc
+source ~/.bashrc # apply the changes
 ```
 ## INSTALL BUILD DEPENDINCIES
 
@@ -167,11 +156,11 @@ git clone --recurse-submodules https://github.com/ardupilot/Micro-XRCE-DDS-Gen.g
 cd Micro-XRCE-DDS-Gen
 ./gradlew assemble
 ```
-Opne .bashrc file and add this export line at the and.
+Opne .bashrc file and add this export line at the and. Save and exit.
 ```bash
 gedit ~/.bashrc 
 export PATH=$PATH:~/Micro-XRCE-DDS-Gen/scripts 
-source ~/.bashrc
+source ~/.bashrc # apply the changes
 ```
 After this command you should see a version number but if you see `microxrceddsgen version: null`, please continue with the installation. 
 
@@ -254,11 +243,11 @@ cd ~/ardupilot/Tools/autotest
 sudo pip3 install MAVProxy
 mavproxy.py --version
 ```
-Edit this export line at the end.
+Edit this export line at the end. Save and exit.
 ```bash
 gedit ~/.bashrc
 export PATH=$PATH:/path/to/mavproxy
-source ~/.bashrc
+source ~/.bashrc # apply the changes
 ```
 This commands 
 ```bash
@@ -282,20 +271,80 @@ cd ~/ros2_ws/
 colcon build --packages-up-to ardupilot_sitl
 source install/setup.bash
 ```
+After see connection you can kill the process with ctrl c
 ```bash
 ros2 launch ardupilot_sitl sitl_dds_udp.launch.py transport:=udp4 refs:=$(ros2 pkg prefix ardupilot_sitl)/share/ardupilot_sitl/config/dds_xrce_profile.xml synthetic_clock:=True wipe:=False model:=quad speedup:=1 slave:=0 instance:=0 defaults:=$(ros2 pkg prefix ardupilot_sitl)/share/ardupilot_sitl/config/default_params/copter.parm,$(ros2 pkg prefix ardupilot_sitl)/share/ardupilot_sitl/config/default_params/dds_udp.parm sim_address:=127.0.0.1 master:=tcp:127.0.0.1:5760 sitl:=127.0.0.1:5501
 ```
+## INSTALL GAZEBO GARDEN
+
 ```bash
+sudo apt-get update
+sudo apt-get install lsb-release curl gnupg
 ```
 ```bash
+sudo wget https://packages.osrfoundation.org/gazebo.gpg -O /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
+```
+Install gazebo garden
+```bash
+sudo apt-get update
+sudo apt-get install gz-garden
+
+```
+### SITL IN GAZEBO GARDEN
+This mat take a few minutes.
+```bash
+cd ~/ros2_ws/src
+wget https://raw.githubusercontent.com/ArduPilot/ardupilot_gz/main/ros2_gz.repos
+vcs import --recursive < ros2_gz.repos
+```
+Edit this export line at the end. Save and exit.
+```bash
+gedit ~/.bashrc
+export GZ_VERSION=garden
+source ~/.bashrc # apply the changes
+```
+
+```bash
+cd ~/ros2_ws/
+sudo apt update
+rosdep update
+rosdep install --rosdistro $ROS_DISTRO --from-paths src -i -r -y
+```
+This may take a few minutes.
+```bash
+MAKEFLAGS="-j 1" colcon build --packages-up-to ardupilot_gz_bringup --cmake-args -DBUILD_TESTING=ON
+```
+to test (note: you can see some failures at results. it is normal.)
+```bash
+source install/setup.bash
+colcon test --packages-select ardupilot_sitl ardupilot_dds_tests ardupilot_gazebo ardupilot_gz_applications ardupilot_gz_description ardupilot_gz_gazebo ardupilot_gz_bringup
+colcon test-result --all --verbose
+```
+Add this second line at the end. Save and exit.
+```bash
+gedit ~/.bashrc
+source ~/ros2_ws/install/setup.sh
+source ~/.bashrc # apply the changes
+```
+Finally you can launch one of the example Gazebo simulations.
+```bash
+ros2 launch ardupilot_gz_bringup iris_runway.launch.py
 ```
 ```bash
+ros2 launch ardupilot_gz_bringup iris_maze.launch.py # a maze example
+```
+
+## IMPORTANT NOTES
+Please use CTRL+C to close the gazebo terminal. Becasue, if there is a active gazebo simulatşon at the background, gazebo dont work properly.
+
+*If Gazebo opens with a blank screen, try the following steps to resolve the issue:*
+```bash
+ps aux | grep -E "gz|ros|ardupilot|mavproxy" #see all the active events and kill all of them
 ```
 ```bash
-```
-```bash
-```
-```bash
+kill -9 <PID NO>
+#kill -9 39861
 ```
 
 
