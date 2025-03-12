@@ -66,7 +66,7 @@ sudo apt install ros-humble-desktop
 
 ### Setup Environment
 
-Automatically source ROS 2 setup when opening a terminal. Add the following line at the end, save, and exit:
+Automatically source ROS 2 setup when opening a terminal.
 
 ```bash
 echo 'source /opt/ros/humble/setup.bash' >> ~/.bashrc
@@ -146,7 +146,7 @@ Verify that variables like `ROS_DISTRO` and `ROS_VERSION` are set.
 printenv | grep -i ROS
 ```
 
-Edit the `.bashrc` file and add these lines at the end:
+Run this code, it will edit your .bashrc file.
 
 ```bash
 echo 'export ROS_DOMAIN_ID=22' >> ~/.bashrc
@@ -169,14 +169,14 @@ cd Micro-XRCE-DDS-Gen
 ./gradlew assemble
 ```
 
-Edit the `.bashrc` file and add:
+This code will edit your .bashrc file:
 
 ```bash
 echo 'export PATH=$PATH:~/Micro-XRCE-DDS-Gen/scripts' >> ~/.bashrc
 source ~/.bashrc  # Apply the changes
 ```
 
-Check if Micro XRCE-DDS-Gen is installed correctly:
+Check if Micro XRCE-DDS-Gen is installed correctly (note: you should see a version number but if you see version: null, please continue to installation.):
 
 ```bash
 microxrceddsgen -version
