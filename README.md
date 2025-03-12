@@ -187,6 +187,7 @@ microxrceddsgen -version
 This may take a few minutes.
 
 ```bash
+cd
 git clone https://github.com/ArduPilot/ardupilot.git
 cd ardupilot
 ```
