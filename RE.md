@@ -216,7 +216,7 @@ rosdep update
 source /opt/ros/humble/setup.bash
 rosdep install --from-paths src --ignore-src -r -y
 ```
-### TRYING ROS 2
+### TEST ROS 2
 This commands to build and test the ardupilot_dds_tests package in your ROS 2 workspace. This may take a few minutes.
 ```bash
 cd ~/ros2_ws
