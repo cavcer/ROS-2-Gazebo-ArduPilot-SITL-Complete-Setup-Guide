@@ -137,7 +137,7 @@ Check that variables like ROS_DISTRO and ROS_VERSION are set.
 ```bash
 printenv | grep -i ROS
 ```
-Opne .bashrc file and add this two export line at the and.
+Open the .bashrc file and add these two export lines at the end.
 ```bash
 gedit ~/.bashrc 
 export ROS_DOMAIN_ID=22
@@ -222,7 +222,7 @@ This commands to build and test the ardupilot_dds_tests package in your ROS 2 wo
 cd ~/ros2_ws
 colcon build --packages-up-to ardupilot_dds_tests --cmake-args -DBUILD_TESTING=ON
 ```
-If you'd like to test your installation, run (note: This might take a while. If it takes too long, don’t wait—just continue with the installation and move on to the next steps:
+If you'd like to test your installation, run (note: This might take a while. If it takes too long (We think this issue is related to your computer rather than the installation.), don’t wait—just continue with the installation and move on to the next steps:
 ```bash
 source ./install/setup.bash
 MAKEFLAGS="-j 1"  colcon test --packages-select ardupilot_dds_tests
@@ -259,7 +259,7 @@ This commands
 
 ```
 ## USE SITL
-These are some example to use SITL. You can find more at the document that below the video tutorial.
+These are some examples of how to use SITL. You can find more in the document below the video tutorial.
 ```bash
 ./sim_vehicle.py -v ArduPlane -f quadplane --console --map --osd 
 ./sim_vehicle.py -v ArduCopter -f quadcopter --console --map --osd #This runs an ArduPlane simulation in quadplane mode, meaning the aircraft can take off and land vertically like a drone.
@@ -271,7 +271,13 @@ cd ~/ros2_ws/
 colcon build --packages-up-to ardupilot_sitl
 source install/setup.bash
 ```
-After see connection you can kill the process with ctrl c
+If an error occurs, try this one:
+```bash
+cd ~/ros2_ws/
+MAKEFLAGS="-j 1" colcon build --packages-up-to ardupilot_sitl
+source install/setup.bash
+```
+After seeing the connection, you can kill the process with Ctrl + C.
 ```bash
 ros2 launch ardupilot_sitl sitl_dds_udp.launch.py transport:=udp4 refs:=$(ros2 pkg prefix ardupilot_sitl)/share/ardupilot_sitl/config/dds_xrce_profile.xml synthetic_clock:=True wipe:=False model:=quad speedup:=1 slave:=0 instance:=0 defaults:=$(ros2 pkg prefix ardupilot_sitl)/share/ardupilot_sitl/config/default_params/copter.parm,$(ros2 pkg prefix ardupilot_sitl)/share/ardupilot_sitl/config/default_params/dds_udp.parm sim_address:=127.0.0.1 master:=tcp:127.0.0.1:5760 sitl:=127.0.0.1:5501
 ```
@@ -336,15 +342,12 @@ ros2 launch ardupilot_gz_bringup iris_maze.launch.py # a maze example
 ```
 
 ## IMPORTANT NOTES
-Please use CTRL+C to close the gazebo terminal. Becasue, if there is a active gazebo simulatşon at the background, gazebo dont work properly.
-
+Please use CTRL+C to close the Gazebo terminal because if there is an active Gazebo simulation running in the background, Gazebo does not work properly.
 *If Gazebo opens with a blank screen, try the following steps to resolve the issue:*
+
 ```bash
-ps aux | grep -E "gz|ros|ardupilot|mavproxy" #see all the active events and kill all of them
-```
-```bash
-kill -9 <PID NO>
-#kill -9 39861
+ps aux | grep -E "gz|ros|ardupilot|mavproxy"  # Check running processes
+pkill -9 -f "gz|ros|ardupilot|mavproxy"
 ```
 
 
